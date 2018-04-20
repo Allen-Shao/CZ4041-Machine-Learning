@@ -1,5 +1,6 @@
 from keras.layers import Input, Dense, Convolution2D, MaxPooling2D, UpSampling2D
 from keras.models import Model
+from keras.callbacks import TensorBoard
 import matplotlib.pyplot as plt
 import os
 from scipy.misc import imread, imresize
@@ -41,7 +42,7 @@ def get_encoder(input_img, image_data, data_dir):
     #     .reshape((img_height, img_width,1)).astype(np.float32))
     # image_data = np.array(image_data)
     # image_data = (np.random.random(image_data.shape) < image_data).astype(np.float32)
-    autoencoder.fit(image_data, image_data, nb_epoch=500, batch_size=256, shuffle=True)
+    autoencoder.fit(image_data, image_data, epochs=500, batch_size=256, shuffle=True, callbacks=[TensorBoard(log_dir='/tmp/autoencoder')])
 
     autoencoder.save_weights(os.path.join(data_dir,"ae_weights.h5"))
 
