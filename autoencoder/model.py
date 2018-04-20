@@ -1,4 +1,5 @@
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+from keras.callbacks import TensorBoard
 import os
 import pandas as pd
 from scipy.misc import imread, imresize
@@ -72,7 +73,7 @@ def train_and_predict(train_data, test_data, labels, images, data_dir, epochs):
 
     model = construct_model(data_dir)
 
-    model.fit(train_data, labels, epochs=epochs, batch_size=256)
+    model.fit(train_data, labels, epochs=epochs, batch_size=256, callbacks=[TensorBoard(log_dir='/tmp/autoencoder')])
     model.save_weights(os.path.join(data_dir, 'model_weights.h5'))
     pred = model.predict_proba(test_data)
     return pred
