@@ -47,18 +47,18 @@ def encode_images(images, data_dir):
 
 def construct_model(data_dir):
     model = Sequential()
-    model.add(Dense(1024, input_dim=448, init="glorot_normal"))
+    model.add(Dense(1024, input_dim=448, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
-    model.add(Dense(1024, init="glorot_normal"))
+    model.add(Dense(1024, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
-    model.add(Dense(512, init="glorot_normal"))
+    model.add(Dense(512, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
-    model.add(Dense(99, init="glorot_normal"))
+    model.add(Dense(99, kernel_initializer="glorot_normal"))
     model.add(Activation("softmax"))
     model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
     if os.path.exists(os.path.join(data_dir, 'model_weights.h5')):
