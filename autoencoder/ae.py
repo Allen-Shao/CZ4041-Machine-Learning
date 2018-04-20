@@ -42,7 +42,7 @@ def get_encoder(input_img, image_data, data_dir):
     #     .reshape((img_height, img_width,1)).astype(np.float32))
     # image_data = np.array(image_data)
     # image_data = (np.random.random(image_data.shape) < image_data).astype(np.float32)
-    autoencoder.fit(image_data, image_data, epochs=500, batch_size=256, shuffle=True, callbacks=[TensorBoard(log_dir='/tmp/autoencoder')])
+    autoencoder.fit(image_data, image_data, epochs=800, batch_size=256, shuffle=True, callbacks=[TensorBoard(log_dir='/tmp/autoencoder')])
 
     autoencoder.save_weights(os.path.join(data_dir,"ae_weights.h5"))
 

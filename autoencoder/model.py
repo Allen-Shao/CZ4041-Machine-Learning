@@ -6,7 +6,7 @@ import numpy as np
 from keras.utils.np_utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Activation, Dropout, Flatten, Merge
-from keras.layers import Input, Dense, Convolution2D, MaxPooling2D, UpSampling2D
+from keras.layers import Input, Dense
 from keras.models import model_from_json, Model
 from keras.callbacks import TensorBoard
 from keras.layers.normalization import BatchNormalization
@@ -86,7 +86,7 @@ def submit(preds, test_ids, classes):
 def main():
     img_height, img_width = 128, 128
     data_dir = 'data/' 
-    epochs = 100
+    epochs = 500
     train, labels, classes, test_ids, test, images = prepare_data(data_dir, img_height, img_width)
     pred = train_and_predict(train, test, labels, images, data_dir, epochs)
     submit(pred, test_ids, classes)
