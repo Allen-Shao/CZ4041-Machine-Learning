@@ -47,7 +47,7 @@ def encode_images(images, data_dir):
 
 def construct_model(data_dir):
     model = Sequential()
-    model.add(Dense(1024, input_dim=448, kernel_initializer="glorot_normal"))
+    model.add(Dense(1024, input_dim=1216, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
@@ -87,7 +87,7 @@ def submit(preds, test_ids, classes):
 def main():
     img_height, img_width = 128, 128
     data_dir = 'data/' 
-    epochs = 10000
+    epochs = 5000
     train, labels, classes, test_ids, test, images = prepare_data(data_dir, img_height, img_width)
     pred = train_and_predict(train, test, labels, images, data_dir, epochs)
     submit(pred, test_ids, classes)
