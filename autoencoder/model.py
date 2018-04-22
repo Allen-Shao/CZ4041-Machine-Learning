@@ -47,7 +47,7 @@ def encode_images(images, data_dir):
 
 def construct_model(data_dir):
     model = Sequential()
-    model.add(Dense(1024, input_dim=1216, kernel_initializer="glorot_normal"))
+    model.add(Dense(1024, input_dim=448, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
