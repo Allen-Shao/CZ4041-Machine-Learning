@@ -1,4 +1,5 @@
 # CZ4041-Machine-Learning
+This project aims to complete the [Leaf Classification](https://www.kaggle.com/c/leaf-classification) challenge in Kaggle. 
 
 ## Dependencies
 * Tensorflow
