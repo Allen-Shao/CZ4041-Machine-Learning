@@ -102,4 +102,6 @@ ENV/
 
 # data
 data/
+ae_weights/
+dense_weights/
 *.csv

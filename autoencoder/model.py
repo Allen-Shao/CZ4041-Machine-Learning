@@ -9,7 +9,7 @@ from keras.models import Sequential
 from keras.layers import Activation, Dropout, Flatten, Merge
 from keras.layers import Input, Dense
 from keras.models import model_from_json, Model
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, ModelCheckpoint
 from keras.layers.normalization import BatchNormalization
 from ae import get_encoder
 
@@ -51,10 +51,10 @@ def construct_model(data_dir):
     model.add(BatchNormalization())
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
-    #model.add(Dense(1024, kernel_initializer="glorot_normal"))
-    #model.add(BatchNormalization())
-    #model.add(Activation("relu"))
-    #model.add(Dropout(0.5))
+    model.add(Dense(1024, kernel_initializer="glorot_normal"))
+    model.add(BatchNormalization())
+    model.add(Activation("relu"))
+    model.add(Dropout(0.5))
     model.add(Dense(512, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
@@ -63,7 +63,8 @@ def construct_model(data_dir):
     model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
     if os.path.exists(os.path.join(data_dir, 'model_weights.h5')):
         model.load_weights(os.path.join(data_dir, 'model_weights.h5'))
-    return model
+    	return model, True
+    return model, False
 
 def train_and_predict(train_data, test_data, labels, images, data_dir, epochs):
     encoded_images = encode_images(images, data_dir) 
@@ -71,10 +72,13 @@ def train_and_predict(train_data, test_data, labels, images, data_dir, epochs):
     train_data = np.concatenate((train_data, encoded_images[:train_data.shape[0],:]), axis=1)
     test_data = np.concatenate((test_data, encoded_images[train_data.shape[0]:,:]), axis=1)
 
-    model = construct_model(data_dir)
+    model, trained = construct_model(data_dir)
+    if (not trained):
+        checkpointFilePath = os.path.join("dense_weights/","weights-improvement-{epoch:02d}-{loss:.8f}.hdf5")
+        checkpoint = ModelCheckpoint(checkpointFilePath, monitor='loss', verbose=1, save_best_only=True, mode='min')
 
-    model.fit(train_data, labels, epochs=epochs, batch_size=256, callbacks=[TensorBoard(log_dir='/tmp/dense')])
-    model.save_weights(os.path.join(data_dir, 'model_weights.h5'))
+        model.fit(train_data, labels, epochs=epochs, batch_size=256, callbacks=[checkpoint, TensorBoard(log_dir='/tmp/dense')])
+        model.save_weights(os.path.join(data_dir, 'model_weights.h5'))
     pred = model.predict_proba(test_data)
     return pred
 

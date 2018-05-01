@@ -46,9 +46,9 @@ def get_encoder(input_img, image_data, data_dir):
     #     .reshape((img_height, img_width,1)).astype(np.float32))
     # image_data = np.array(image_data)
     # image_data = (np.random.random(image_data.shape) < image_data).astype(np.float32)
-    checkpointFilePath = "weights-improvement-{epoch:02d}-{loss:.8f}.hdf5"
-    checkpoint = ModelCheckpoint(checkpointFilePath, monitor='test', verbose=1, save_best_only=True, mode='min')
-    autoencoder.fit(image_data, image_data, validation_split=0.33, epochs=500, batch_size=256, shuffle=True, callbacks=[checkpoint, TensorBoard(log_dir='/tmp/autoencoder')])
+    checkpointFilePath = os.path.join("ae_weights/","weights-improvement-{epoch:02d}-{loss:.8f}.hdf5")
+    checkpoint = ModelCheckpoint(checkpointFilePath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+    autoencoder.fit(image_data, image_data, epochs=10000, batch_size=256, shuffle=True, callbacks=[checkpoint, TensorBoard(log_dir='/tmp/autoencoder')])
 
     autoencoder.save_weights(os.path.join(data_dir,"ae_weights.h5"))
 
