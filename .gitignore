@@ -105,3 +105,5 @@ data/
 ae_weights/
 dense_weights/
 *.csv
+
+.DS_Store
