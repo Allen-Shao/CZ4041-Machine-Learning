@@ -1,4 +1,5 @@
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+from keras.callbacks import TensorBoard
 import os
 import pandas as pd
 from scipy.misc import imread, imresize
@@ -6,9 +7,9 @@ import numpy as np
 from keras.utils.np_utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Activation, Dropout, Flatten, Merge
-from keras.layers import Input, Dense, Convolution2D, MaxPooling2D, UpSampling2D
+from keras.layers import Input, Dense
 from keras.models import model_from_json, Model
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, ModelCheckpoint
 from keras.layers.normalization import BatchNormalization
 from ae import get_encoder
 
@@ -46,23 +47,24 @@ def encode_images(images, data_dir):
 
 def construct_model(data_dir):
     model = Sequential()
-    model.add(Dense(1024, input_dim=448, init="glorot_normal"))
+    model.add(Dense(1024, input_dim=448, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
-    model.add(Dense(1024, init="glorot_normal"))
+    model.add(Dense(1024, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
-    model.add(Dense(512, init="glorot_normal"))
+    model.add(Dense(512, kernel_initializer="glorot_normal"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
-    model.add(Dense(99, init="glorot_normal"))
+    model.add(Dense(99, kernel_initializer="glorot_normal"))
     model.add(Activation("softmax"))
     model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
     if os.path.exists(os.path.join(data_dir, 'model_weights.h5')):
         model.load_weights(os.path.join(data_dir, 'model_weights.h5'))
-    return model
+    	return model, True
+    return model, False
 
 def train_and_predict(train_data, test_data, labels, images, data_dir, epochs):
     encoded_images = encode_images(images, data_dir) 
@@ -70,10 +72,13 @@ def train_and_predict(train_data, test_data, labels, images, data_dir, epochs):
     train_data = np.concatenate((train_data, encoded_images[:train_data.shape[0],:]), axis=1)
     test_data = np.concatenate((test_data, encoded_images[train_data.shape[0]:,:]), axis=1)
 
-    model = construct_model(data_dir)
+    model, trained = construct_model(data_dir)
+    if (not trained):
+        checkpointFilePath = os.path.join("dense_weights/","weights-improvement-{epoch:02d}-{loss:.8f}.hdf5")
+        checkpoint = ModelCheckpoint(checkpointFilePath, monitor='loss', verbose=1, save_best_only=True, mode='min')
 
-    model.fit(train_data, labels, epochs=epochs, batch_size=256)
-    model.save_weights(os.path.join(data_dir, 'model_weights.h5'))
+        model.fit(train_data, labels, epochs=epochs, batch_size=256, callbacks=[checkpoint, TensorBoard(log_dir='/tmp/dense')])
+        model.save_weights(os.path.join(data_dir, 'model_weights.h5'))
     pred = model.predict_proba(test_data)
     return pred
 
@@ -86,7 +91,7 @@ def submit(preds, test_ids, classes):
 def main():
     img_height, img_width = 128, 128
     data_dir = 'data/' 
-    epochs = 100
+    epochs = 5000
     train, labels, classes, test_ids, test, images = prepare_data(data_dir, img_height, img_width)
     pred = train_and_predict(train, test, labels, images, data_dir, epochs)
     submit(pred, test_ids, classes)

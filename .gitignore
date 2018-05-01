@@ -100,5 +100,14 @@ ENV/
 # mypy
 .mypy_cache/
 
+
+
+# data
 data/
-*submission/
+ae_weights/
+dense_weights/
+*.csv
+
+.vscode/
+.DS_Store
+
