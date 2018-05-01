@@ -1,13 +1,5 @@
 
-# coding: utf-8
-
-# In[1]:
-
 import json
-
-
-# In[2]:
-
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import pandas as pd
@@ -22,11 +14,9 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 # ## Load the data
 
-# In[3]:
-
 train_data = json.load(open("./data/train_features.json"))
 test_data = json.load(open("./data/test_features.json"))
-
+# Seperate the train data into label and features
 train_label = []
 train_feature = []
 for i in list(train_data.keys()):
@@ -41,15 +31,13 @@ for i in list(test_data.keys()):
 
 # ## Normalization
 
-# In[4]:
-
 minmax_scaler = MinMaxScaler()
 train_feature = minmax_scaler.fit_transform(np.array(train_feature))
 test_feature = minmax_scaler.transform(np.array(test_feature))
 
 
-# In[5]:
-
+# Split to training and validation dataset
+# so that for each species there will be 2 samples in the validation dataset and 8 samples in traning dataset
 def train_validation_split(x, y):
     idx = (list(range(len(y))))
     np.random.shuffle(idx)
@@ -73,21 +61,9 @@ def train_validation_split(x, y):
     train_idx = [i for i in range(len(y)) if i not in vali_idx]
     return  x[train_idx], x[vali_idx], y[train_idx], y[vali_idx]
 
-
-# In[ ]:
-
-
-
-
-# In[6]:
-
 X_train, X_vali, y_train, y_vali = train_validation_split(train_feature, train_label)
 
-
-# In[7]:
-
-
-
+# initiate 10 classifiers
 classifiers = [
     KNeighborsClassifier(3),
     SVC(kernel="rbf", C=0.025, probability=True),
@@ -104,6 +80,7 @@ classifiers = [
 log_cols=["Classifier", "Accuracy", "Log Loss"]
 log = pd.DataFrame(columns=log_cols)
 
+# for each classifier, train and test by using validation dataset
 for clf in classifiers:
     clf.fit(X_train, y_train)
     name = clf.__class__.__name__
@@ -141,7 +118,7 @@ def prepare_submission_file(clf, file_name):
     submission.to_csv("./cvfeature_submission/" + file_name + ".csv", index=False)
 
 
-# In[9]:
+# prepare the submission file to upload to Kaggle
 
 # best_clf = classifiers[2]
 # for i in classifiers:
@@ -151,8 +128,6 @@ i = KNeighborsClassifier(3)
 i.fit(train_feature, train_labels)
 prepare_submission_file(i,i.__class__.__name__)
 
-
-# In[ ]:
 
 
 

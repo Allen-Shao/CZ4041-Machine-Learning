@@ -1,8 +1,3 @@
-
-# coding: utf-8
-
-# In[2]:
-
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import pandas as pd
@@ -16,27 +11,24 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
-# In[3]:
-
+# Load data
 train_data = pd.DataFrame.from_csv("./data/train.csv")
 test_feature = pd.DataFrame.from_csv("./data/test.csv")
 
 
-# In[4]:
-
+# Seperate the train data into label and features
 train_labels = train_data['species'].values
 train_feature = train_data[[i for i in train_data.columns if i != 'species']].values
 
 
-# In[5]:
-
+# Min max normalization
 minmax_scaler = MinMaxScaler()
 train_feature = minmax_scaler.fit_transform(np.array(train_feature))
 test_feature = minmax_scaler.transform(np.array(test_feature))
 
 
-# In[6]:
-
+# Split to training and validation dataset
+# so that for each species there will be 2 samples in the validation dataset and 8 samples in traning dataset
 def train_validation_split(x, y):
     idx = (list(range(len(y))))
     np.random.shuffle(idx)
@@ -62,11 +54,7 @@ def train_validation_split(x, y):
 
 X_train, X_vali, y_train, y_vali = train_validation_split(train_feature, train_labels)
 
-
-# In[9]:
-
-
-
+# initiate 10 classifiers
 classifiers = [
     KNeighborsClassifier(3),
     SVC(kernel="rbf", C=0.025, probability=True),
@@ -84,6 +72,7 @@ log_cols=["Classifier", "Accuracy", "Log Loss"]
 log = pd.DataFrame(columns=log_cols)
 
 
+# for each classifier, train and test by using validation dataset
 for clf in classifiers:
     clf.fit(X_train, y_train)
     name = clf.__class__.__name__
@@ -106,7 +95,6 @@ for clf in classifiers:
 print("="*30)
 
 
-# In[10]:
 
 def prepare_submission_file(clf, file_name):
     if (os.path.exists('./baseline_submission/') is False):
@@ -121,7 +109,7 @@ def prepare_submission_file(clf, file_name):
     submission.to_csv("./baseline_submission/" + file_name + ".csv", index=False)
 
 
-# In[11]:
+# prepare the submission file to upload to Kaggle
 
 # best_clf = classifiers[2]
 # log.to_csv("./baseline_submission/log.csv")
@@ -130,8 +118,6 @@ i = KNeighborsClassifier(3)
 i.fit(train_feature, train_labels)
 prepare_submission_file(i,i.__class__.__name__)
 
-
-# In[ ]:
 
 
 
