@@ -100,6 +100,8 @@ ENV/
 # mypy
 .mypy_cache/
 
+
+
 # data
 data/
 ae_weights/
@@ -108,3 +110,4 @@ dense_weights/
 
 .vscode/
 .DS_Store
+
